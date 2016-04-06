@@ -1,10 +1,10 @@
 #ifndef _ANABIT_COBWEB_HPP_
 #define _ANABIT_COBWEB_HPP_
 
-class cobweb {
+class net {
 public:
-    cobweb();
-    ~cobweb();
+    net();
+    ~net();
 
 private:
 
