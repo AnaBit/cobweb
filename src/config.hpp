@@ -1,7 +1,11 @@
 #ifndef _ANABIT_COBWEB_CONFIG_HPP_
 #define _ANABIT_COBWEB_CONFIG_HPP_
 
-
+// global debug
 #define __DEBUG_COBWEB 1
+
+//
+#define __COBWEB_DEBUG_ON __DEBUG_COBWEB
+#define __COBWEB_DEBUG_OFF 0
 
 #endif // _ANABIT_COBWEB_CONFIG_HPP_

@@ -4,16 +4,17 @@
 #include <list>
 #include <vector>
 #include <memory>
+#include <atomic>
 
 namespace cobweb {
 namespace base {
 
-class buffer {
+class atom_buffer {
 public:
-    using buffer_data = std::shared_ptr<std::vector<unsigned char>>;
+    using buffer_data = std::vector<unsigned char>;
 public:
-    buffer() {}
-    virtual ~buffer();
+    atom_buffer();
+    virtual ~atom_buffer();
 
     void push_back(buffer_data & data);
     void push_back(buffer_data && data);
@@ -27,7 +28,12 @@ public:
     static buffer_data conv_data(std::vector<unsigned char> && data);
 
 private:
+    void wait();
+    void leave();
+
+private:
     std::list<buffer_data> _buffer;
+    std::atomic_flag _flag_buffer = ATOMIC_FLAG_INIT;
 };
 
 }

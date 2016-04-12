@@ -2,48 +2,82 @@
 namespace cobweb {
 namespace base {
 
-buffer::buffer_data buffer::conv_data(std::vector<unsigned char> & data)
+atom_buffer::buffer_data atom_buffer::conv_data(std::vector<unsigned char> & data)
 {
-    buffer_data buf = std::make_shared<std::vector<unsigned char>>(data);
+    buffer_data buf(data);
     return buf;
 }
 
-buffer::buffer_data buffer::conv_data(std::vector<unsigned char> && data)
+atom_buffer::buffer_data atom_buffer::conv_data(std::vector<unsigned char> && data)
 {
-    buffer_data buf = std::make_shared<std::vector<unsigned char>>(data);
+    buffer_data buf(data);
     return buf;
 }
 
-void buffer::push_back(buffer::buffer_data & data)
+atom_buffer::atom_buffer()
 {
+
+}
+
+atom_buffer::~atom_buffer()
+{
+
+}
+
+void atom_buffer::push_back(atom_buffer::buffer_data & data)
+{
+    wait();
     _buffer.push_back(data);
+    leave();
 }
 
-void buffer::push_back(buffer::buffer_data && data)
+void atom_buffer::push_back(atom_buffer::buffer_data && data)
 {
+    wait();
     _buffer.push_back(data);
+    leave();
 }
 
-buffer::buffer_data buffer::front()
+atom_buffer::buffer_data atom_buffer::front()
 {
-    return _buffer.front();
+    wait();
+    buffer_data buf = _buffer.front();
+    leave();
+    return buf;
 }
 
-buffer::buffer_data buffer::pop_front()
+atom_buffer::buffer_data atom_buffer::pop_front()
 {
-    buffer_data buf;
+    wait();
+    buffer_data buf = _buffer.front();
     _buffer.pop_front();
+    leave();
     return buf;
 }
 
-void buffer::clear()
+void atom_buffer::clear()
 {
+    wait();
     _buffer.clear();
+    leave();
 }
 
-size_t buffer::size()
+size_t atom_buffer::size()
 {
-    _buffer.size();
+    wait();
+    size_t size = _buffer.size();
+    leave();
+    return size;
+}
+
+void atom_buffer::wait()
+{
+    while (_flag_buffer.test_and_set());
+}
+
+void atom_buffer::leave()
+{
+    _flag_buffer.clear();
 }
 
 }
