@@ -20,7 +20,7 @@ socket::socket() throw(std::runtime_error)
 {
     _fd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (_fd == -1) {
-        ERROR_MARK(SOCKET_TCP, "socket erron = %d", errno);
+        ERROR_MARK(SOCKET_TCP, "socket errno = %d", errno);
         throw(std::runtime_error("socket create error!"));
     }
 }
@@ -50,7 +50,7 @@ int socket::bind(const sockaddr_in & addr)
 {
    int ret = ::bind(_fd, (sockaddr *)&addr, sizeof(sockaddr));
    if (ret < 0) {
-       ERROR_MARK(SOCKET_TCP, "bind erron = %d", errno);
+       ERROR_MARK(SOCKET_TCP, "bind errno = %d", errno);
    }
 
    return ret;
@@ -60,7 +60,7 @@ int socket::listen(int n)
 {
     int ret = ::listen(_fd, n);
     if (ret < 0) {
-        ERROR_MARK(SOCKET_TCP, "listen erron = %d", errno);
+        ERROR_MARK(SOCKET_TCP, "listen errno = %d", errno);
     }
 
     return ret;
@@ -71,13 +71,23 @@ int socket::accept(sockaddr_in & addr)
     socklen_t len = sizeof(sockaddr);
     int p_fd = ::accept(_fd, (sockaddr *)&addr, &len);
     if (p_fd < 0) {
-        ERROR_MARK(SOCKET_TCP, "%s erron = %d", __func__, errno);
+        ERROR_MARK(SOCKET_TCP, "%s errno = %d", __func__, errno);
     }
     return p_fd;
 }
 
+int socket::connect(const sockaddr_in & addr)
+{
+    int ret = ::connect(_fd, (sockaddr *)&addr, sizeof (sockaddr));
+    if (ret < 0) {
+        ERROR_MARK(SOCKET_TCP, "%s errno %d", __func__, errno);
+    }
+    return ret;
+}
+
 int socket::send(void * buf, size_t len)
 {
+    RUN_MARK(SOCKET_TCP, "%s", __func__);
     return static_cast<int>(::send(_fd, buf, len, 0));
 }
 
@@ -137,7 +147,7 @@ void socket::set_reuse_addr(YES_NO state)
     }
 
     if (::setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &ops, sizeof(ops)) < 0) {
-        ERROR_MARK(SOCKET_TCP, "%s erron = %d", __func__, errno);
+        ERROR_MARK(SOCKET_TCP, "%s errno = %d", __func__, errno);
     }
 }
 
@@ -151,7 +161,7 @@ void socket::set_reuse_port(YES_NO state)
     }
 
     if (::setsockopt(_fd,SOL_SOCKET, SO_REUSEPORT, &ops, sizeof(ops)) < 0) {
-        ERROR_MARK(SOCKET_TCP, "%s erron = %d", __func__, errno);
+        ERROR_MARK(SOCKET_TCP, "%s errno = %d", __func__, errno);
     }
 }
 
@@ -167,7 +177,7 @@ void socket::set_keep_alive(const alive_con &state)
     ret += ::setsockopt(_fd, SOL_TCP, TCP_KEEPCNT,
                       &(state.idle_time_s), sizeof(state.idle_time_s));
     if (ret != 0) {
-        ERROR_MARK(SOCKET_TCP, "%s erron = %d", __func__, errno);
+        ERROR_MARK(SOCKET_TCP, "%s errno = %d", __func__, errno);
     }
 }
 
@@ -181,7 +191,7 @@ void socket::set_socket_no_delay(YES_NO state)
     }
     if (::setsockopt(_fd, IPPROTO_TCP, TCP_NODELAY,
                  &ops, static_cast<socklen_t>(sizeof ops)) < 0) {
-        ERROR_MARK(SOCKET_TCP, "%s erron = %d", __func__, errno);
+        ERROR_MARK(SOCKET_TCP, "%s errno = %d", __func__, errno);
     }
 }
 
@@ -190,7 +200,7 @@ void socket::set_no_block(YES_NO state)
     int flags = ::fcntl (_fd, F_GETFL, 0);
 
     if (flags < 0) {
-        ERROR_MARK(SOCKET_TCP, "%s erron = %d", __func__, errno);
+        ERROR_MARK(SOCKET_TCP, "%s errno = %d", __func__, errno);
         return;
     }
 
@@ -201,7 +211,7 @@ void socket::set_no_block(YES_NO state)
     }
 
     if (::fcntl (_fd, F_SETFL, flags) < 0) {
-        ERROR_MARK(SOCKET_TCP, "%s erron = %d", __func__, errno);
+        ERROR_MARK(SOCKET_TCP, "%s errno = %d", __func__, errno);
         return;
     }
 }
@@ -211,14 +221,14 @@ void socket::set_close_exec()
     int flags = ::fcntl(_fd, F_GETFD, 0);
 
     if (flags < 0) {
-        ERROR_MARK(SOCKET_TCP, "%s erron = %d", __func__, errno);
+        ERROR_MARK(SOCKET_TCP, "%s errno = %d", __func__, errno);
         return;
     }
 
     flags |= FD_CLOEXEC;
 
     if (::fcntl(_fd, F_SETFD, flags) < 0) {
-        ERROR_MARK(SOCKET_TCP, "%s erron = %d", __func__, errno);
+        ERROR_MARK(SOCKET_TCP, "%s errno = %d", __func__, errno);
         return;
     }
 }

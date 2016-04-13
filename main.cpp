@@ -17,7 +17,6 @@ void recv_callback(int fd, server::buffer && buf)
 
 int main()
 {
-
 //    cobweb::base::thread_pool pool(std::thread::hardware_concurrency() * 2);
 //    std::vector< std::future<int> > results;
 
@@ -41,6 +40,8 @@ int main()
         recv_callback(fd, std::move(buf));
     });
     ser.start();
+
+    cobweb::tcp::client cli;
 
     pause();
     return 0;

@@ -76,7 +76,6 @@ private:
 
 private:
     // thread handle/.
-    thread_pool _pool;
     std::mutex _mutex_pending_event;
     std::list<std::function<void(void)>> _pending_events;
 

@@ -11,7 +11,6 @@ namespace cobweb {
 namespace base {
 
 event_poll::event_poll()
-    : _pool(std::thread::hardware_concurrency() * 2)
 {
     _event.resize(INIT_SIZE);
 }
@@ -130,7 +129,7 @@ void event_poll::handle_poll()
 
 void event_poll::event_recv(io_data * io)
 {
-    if (_event_revc_callback) {
+    if (_event_revc_callback) {   
         _event_revc_callback(io);
     }
 }

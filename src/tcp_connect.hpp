@@ -29,7 +29,7 @@ public:
     void set_buf_size(size_t size);
 
     void set_recv_event(recv_callback && ev);
-    void send(int fd, buffer & buf);
+    void send(int fd, server::buffer & buf);
 
 private:
     void set_callback();
@@ -52,6 +52,24 @@ private:
     std::mutex _mutex_tunnels;
     std::map<int, tunnel_ptr> _tunnels;
     using tun_itr = std::map<int, tunnel_ptr>::iterator;
+};
+
+
+class client {
+public:
+    using socket = base::socket;
+    using tunnel = base::tunnel;
+    using buffer = std::vector<unsigned char>;
+    using io_data  = base::io_epoll::io_data;
+    using callback = base::event_poll::event_callback;
+public:
+    client();
+    ~client();
+
+private:
+    base::thread_pool _pool;
+    base::event_poll _poll;
+    socket _socket;
 };
 
 }
