@@ -48,9 +48,9 @@ void event_poll::push_event(event_func && ev)
     }
 }
 
-bool event_poll::add(int fd, tunnel * tun)
+bool event_poll::add(int fd, io_data * tun)
 {
-    return _poll.add(fd, (io_data *)tun);
+    return _poll.add(fd, tun);
 }
 
 bool event_poll::remove(int fd)
@@ -58,14 +58,14 @@ bool event_poll::remove(int fd)
     return _poll.remove(fd);
 }
 
-bool event_poll::in_event(int fd, tunnel * tun)
+bool event_poll::in_event(int fd, io_data * tun)
 {
-    return _poll.modify(fd, (io_data *)tun, io_epoll::FD_EVENT::FD_IN);
+    return _poll.modify(fd, tun, io_epoll::FD_EVENT::FD_IN);
 }
 
-bool event_poll::out_event(int fd, tunnel * tun)
+bool event_poll::out_event(int fd, io_data * tun)
 {
-    return _poll.modify(fd, (io_data *)tun, io_epoll::FD_EVENT::FD_OUT);
+    return _poll.modify(fd, tun, io_epoll::FD_EVENT::FD_OUT);
 }
 
 void event_poll::set_remove_callback(event_callback && ev)
@@ -108,10 +108,10 @@ void event_poll::handle_poll()
         event_cnt = _poll.poll(_event, 1000);
         while (event_cnt > 0) {
             io_epoll::event ev =  _event.at(static_cast<size_t>(--event_cnt));
-            tunnel * tun = (tunnel *)ev.data.ptr;
+            io_data * tun = (io_data *)ev.data.ptr;
             if (io_epoll::ev_error(ev)) {
                 event_remove(tun);
-
+                continue;
             } else {
 
                 if (io_epoll::ev_recv(ev)) {
@@ -125,25 +125,24 @@ void event_poll::handle_poll()
         }
 
         handle_event();
-
     }
 }
 
-void event_poll::event_recv(tunnel * tun)
+void event_poll::event_recv(io_data * io)
 {
     if (_event_revc_callback) {
-        _event_revc_callback(tun);
+        _event_revc_callback(io);
     }
 }
 
-void event_poll::event_send(tunnel * tun)
+void event_poll::event_send(io_data * io)
 {
-    _event_send_callback(tun);
+    _event_send_callback(io);
 }
 
-void event_poll::event_remove(tunnel * tun)
+void event_poll::event_remove(io_data * io)
 {
-    _event_remove_callback(tun);
+    _event_remove_callback(io);
 }
 
 }

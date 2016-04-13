@@ -2,19 +2,22 @@
 #define _ANABIT_COBWEB_TCP_CONNECT_HPP_
 
 #include "base/event_poll.hpp"
+#include "base/tunnel.hpp"
 
 namespace cobweb {
 namespace tcp {
 
+// ----------------------------------------------------------------------------
 class server
 {
 public:
     using io_epoll = base::io_epoll;
+    using io_data  = base::io_epoll::io_data;
     using tunnel = base::tunnel;
     using socket = base::socket;
-    using tunnel_ptr = std::unique_ptr<tunnel>;
     using buffer = std::vector<unsigned char>;
     using recv_callback = std::function<void(int, buffer &&)>;
+    using tunnel_ptr = std::shared_ptr<tunnel>;
 
 public:
     server(std::string port) throw(std::runtime_error);
@@ -44,11 +47,11 @@ private:
     tunnel_ptr _master_tun;
     socket _socket;
     base::event_poll _poll;
-};
 
-class client
-{
-
+    // modify tunnel
+    std::mutex _mutex_tunnels;
+    std::map<int, tunnel_ptr> _tunnels;
+    using tun_itr = std::map<int, tunnel_ptr>::iterator;
 };
 
 }

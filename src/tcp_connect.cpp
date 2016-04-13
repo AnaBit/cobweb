@@ -89,7 +89,8 @@ void server::send(int fd, server::buffer & buf)
 
 void server::set_callback()
 {
-    _poll.set_recv_callback([this] (tunnel * tun) {
+    _poll.set_recv_callback([this] (io_data * io) {
+        tunnel * tun = (tunnel *)io;
         if (tun->sock().fd() == _socket.fd()) {
             sockaddr_in addr;
             socket sock(_socket.accept(addr));
@@ -119,7 +120,7 @@ void server::set_callback()
         }
     });
 
-    _poll.set_send_callback([this] (tunnel * tun) {
+    _poll.set_send_callback([this] (io_data * io) {
 
     });
 }
